@@ -1,5 +1,4 @@
 import csv
-from pprint import pprint
 
 import bs4
 from selenium import webdriver
