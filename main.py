@@ -1,4 +1,5 @@
 import csv
+from pprint import pprint
 
 import bs4
 from selenium import webdriver
@@ -26,7 +27,7 @@ soup = bs4.BeautifulSoup(html, 'html.parser')
 teams_table = soup.find(id=team_statistics_id)
 players_table = soup.find(id=player_statistics_id)
 
-
+# create teams.csv
 with open('teams.csv', 'w', newline='') as teams_csv:
     rows = []
     writer = csv.writer(teams_csv, delimiter=' ')
@@ -44,22 +45,25 @@ with open('teams.csv', 'w', newline='') as teams_csv:
             rows.append(data_row)
     writer.writerows(rows)
 
+# clean up the players table
+irrelevant_player_info = ["table-ranking", "team-name", "player-meta-data", "grid-ghost-cell"]
+
+for info in irrelevant_player_info:
+    elements = players_table.find_all(class_=info)
+    for element in elements:
+        element.clear()
+
+# create players.csv
 with open('players.csv', 'w', newline='') as players_csv:
-    rows = []
+    players_rows = []
     writer = csv.writer(players_csv, delimiter=' ')
-    for child in teams_table.children:
+    for child in players_table.children:
         for table_row in child.children:
-            data_row = []
+            player_data_row = []
             for cell in table_row.stripped_strings:
-                if cell == "Discipline":
-                    yellow = "Yellow Cards"
-                    red = "Red Cards"
-                    data_row.append(yellow)
-                    data_row.append(red)
-                else:
-                    data_row.append(cell)
-            rows.append(data_row)
-    writer.writerows(rows)
+                player_data_row.append(cell)
+            players_rows.append(player_data_row)
+    writer.writerows(players_rows)
 
 
 
